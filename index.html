@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster // CyberCore Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Orbitron & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --transition-speed: 0.3s;
+        }
+
+        /* Dark Theme Variables */
+        [data-bs-theme="dark"] {
+            --bg-deep: #050814;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(5, 8, 20, 0.75);
+            --neon-cyan: #00f2fe;
+            --neon-purple: #4facfe;
+            --modal-bg: #0b132b;
+        }
+
+        /* Light Theme Variables */
+        [data-bs-theme="light"] {
+            --bg-deep: #f0f4f8;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(0, 242, 254, 0.2);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --navbar-bg: rgba(255, 255, 255, 0.85);
+            --neon-cyan: #0077b6;
+            --neon-purple: #0096c7;
+            --modal-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 254, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(79, 172, 254, 0.06) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .navbar {
+            background: var(--navbar-bg) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            transition: background var(--transition-speed);
+        }
+
+        .navbar-brand {
+            color: var(--neon-cyan) !important;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            transition: background var(--transition-speed), border var(--transition-speed);
+        }
+
+        .form-control, .form-select {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main) !important;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--glass-bg);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+        }
+
+        .btn-cyber {
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-purple) 100%);
+            border: none;
+            color: #050814;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cyber:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .table {
+            color: var(--text-main);
+            border-color: var(--glass-border);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 242, 254, 0.05);
+            color: var(--text-main);
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .modal-content {
+            background: var(--modal-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold fs-5" href="#">⚡ TASKMASTER // CORE</a>
+            <div class="d-flex align-items-center ms-auto gap-3">
+                <!-- Theme Toggle Button -->
+                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" id="themeToggleBtn" onclick="toggleTheme()">
+                    <span id="themeIcon">☀️</span> Mode
+                </button>
+                <div id="authNav">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <!-- AUTH SECTION -->
+        <div id="authSection" class="row justify-content-center align-items-center" style="min-height: 65vh;">
+            <div class="col-md-5 col-lg-4">
+                <div class="glass-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <h3 id="authTitle" class="fw-bold mb-2">SYSTEM ACCESS</h3>
+                        <p class="text-muted small">Authenticate to manage secure nodes.</p>
+                    </div>
+                    <form id="authForm" onsubmit="handleAuth(event)">
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase text-muted fw-bold">Operator ID</label>
+                            <input type="text" id="usernameInput" class="form-control" placeholder="Enter handle..." required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small text-uppercase text-muted fw-bold">Passkey</label>
+                            <input type="password" id="passwordInput" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" id="authBtn" class="btn btn-cyber w-100 mb-3">Initialize Login</button>
+                    </form>
+                    <div class="text-center">
+                        <a href="#" id="toggleAuthMode" class="text-decoration-none small text-info" onclick="toggleAuthMode()">New operator? Register node</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APP DASHBOARD SECTION -->
+        <div id="appSection" style="display: none;">
+            <div class="row align-items-center mb-4 g-3">
+                <div class="col-12 col-md-8">
+                    <h2 class="fw-bold mb-1">COMMAND DASHBOARD</h2>
+                    <p class="text-muted mb-0">Active Operator: <span id="currentUserDisplay" class="text-info fw-semibold"></span></p>
+                </div>
+                <div class="col-12 col-md-4 text-md-end">
+                    <button class="btn btn-cyber w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#taskModal" onclick="openTaskModal()">
+                        + New Objective
+                    </button>
+                </div>
+            </div>
+
+            <!-- Task Table Card -->
+            <div class="glass-card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="text-uppercase fs-7 text-muted border-bottom">
+                            <tr>
+                                <th class="ps-4 py-3">Objective</th>
+                                <th class="py-3">Parameters</th>
+                                <th class="py-3">Status</th>
+                                <th class="pe-4 py-3 text-end">Protocols</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskList">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-2">
+                <form id="taskForm" onsubmit="saveTask(event)">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold text-info" id="modalTitle">CONFIGURE OBJECTIVE</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <input type="hidden" id="taskId">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Title</label>
+                            <input type="text" id="taskTitle" class="form-control" placeholder="Objective designation..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Description</label>
+                            <textarea id="taskDesc" class="form-control" rows="3" placeholder="Execution parameters..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Status Vector</label>
+                            <select id="taskStatus" class="form-select">
+                                <option value="Pending">Pending Execution</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Abort</button>
+                        <button type="submit" class="btn btn-cyber btn-sm px-4">Commit Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isRegistering = false;
+        let currentUser = localStorage.getItem("tm_current_user") || null;
+        let modalInstance = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            modalInstance = new bootstrap.Modal(document.getElementById('taskModal'));
+            
+            // Load saved theme preference
+            const savedTheme = localStorage.getItem("tm_theme") || "dark";
+            setTheme(savedTheme);
+
+            checkAuthState();
+        });
+
+        // Theme Toggle Logic
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-bs-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute("data-bs-theme", theme);
+            localStorage.setItem("tm_theme", theme);
+            const icon = document.getElementById("themeIcon");
+            icon.textContent = theme === "dark" ? "☀️" : "🌙";
+        }
+
+        function toggleAuthMode() {
+            isRegistering = !isRegistering;
+            document.getElementById("authTitle").textContent = isRegistering ? "NODE REGISTRATION" : "SYSTEM ACCESS";
+            document.getElementById("authBtn").textContent = isRegistering ? "Register Node" : "Initialize Login";
+            document.getElementById("toggleAuthMode").textContent = isRegistering ? "Already registered? Access system" : "New operator? Register node";
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const user = document.getElementById("usernameInput").value.trim();
+            const pass = document.getElementById("passwordInput").value.trim();
+            let users = JSON.parse(localStorage.getItem("tm_users") || "{}");
+
+            if (isRegistering) {
+                if (users[user]) {
+                    alert("Operator ID already allocated!");
+                    return;
+                }
+                users[user] = pass;
+                localStorage.setItem("tm_users", JSON.stringify(users));
+                alert("Node registered successfully. Please authenticate.");
+                toggleAuthMode();
+            } else {
+                if (!users[user] || users[user] !== pass) {
+                    alert("Authentication failure: Invalid handle or passkey.");
+                    return;
+                }
+                localStorage.setItem("tm_current_user", user);
+                currentUser = user;
+                checkAuthState();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("tm_current_user");
+            currentUser = null;
+            checkAuthState();
+        }
+
+        function checkAuthState() {
+            if (currentUser) {
+                document.getElementById("authSection").style.display = "none";
+                document.getElementById("appSection").style.display = "block";
+                document.getElementById("currentUserDisplay").textContent = currentUser;
+                document.getElementById("authNav").innerHTML = `<button class="btn btn-outline-danger btn-sm px-3" onclick="logout()">Logout</button>`;
+                loadTasks();
+            } else {
+                document.getElementById("authSection").style.display = "flex";
+                document.getElementById("appSection").style.display = "none";
+                document.getElementById("authNav").innerHTML = "";
+            }
+        }
+
+        function getTasks() {
+            let allTasks = JSON.parse(localStorage.getItem("tm_tasks") || "{}");
+            return allTasks[currentUser] || [];
+        }
+
+        function saveTasksToStorage(tasks) {
+            let allTasks = JSON.parse(localStorage.getItem("tm_tasks") || "{}");
+            allTasks[currentUser] = tasks;
+            localStorage.setItem("tm_tasks", JSON.stringify(allTasks));
+        }
+
+        function loadTasks() {
+            const tasks = getTasks();
+            const tbody = document.getElementById("taskList");
+            tbody.innerHTML = "";
+
+            if (tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-5 text-muted">No operational objectives found. Initialize a new objective.</td></tr>`;
+                return;
+            }
+
+            tasks.forEach((task, index) => {
+                let badgeClass = task.status === 'Completed' ? 'badge-completed' : 'badge-pending';
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="ps-4 fw-semibold">${escapeHtml(task.title)}</td>
+                        <td class="text-muted small">${escapeHtml(task.desc || 'Null parameters')}</td>
+                        <td>
+                            <span class="badge ${badgeClass} px-3 py-2">
+                                ${task.status}
+                            </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-sm btn-outline-info me-1" onclick="editTask(${index})" title="Modify">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.646-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                                </svg>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${index})" title="Purge">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openTaskModal() {
+            document.getElementById("taskForm").reset();
+            document.getElementById("taskId").value = "";
+            document.getElementById("modalTitle").textContent = "CONFIGURE OBJECTIVE";
+        }
+
+        function saveTask(e) {
+            e.preventDefault();
+            const id = document.getElementById("taskId").value;
+            const title = document.getElementById("taskTitle").value;
+            const desc = document.getElementById("taskDesc").value;
+            const status = document.getElementById("taskStatus").value;
+
+            let tasks = getTasks();
+
+            if (id === "") {
+                tasks.push({ title, desc, status });
+            } else {
+                tasks[id] = { title, desc, status };
+            }
+
+            saveTasksToStorage(tasks);
+            modalInstance.hide();
+            loadTasks();
+        }
+
+        function editTask(index) {
+            const tasks = getTaksSafe(index);
+            if (!tasks) return;
+            document.getElementById("taskId").value = index;
+            document.getElementById("taskTitle").value = tasks.title;
+            document.getElementById("taskDesc").value = tasks.desc;
+            document.getElementById("taskStatus").value = tasks.status;
+            document.getElementById("modalTitle").textContent = "MODIFY OBJECTIVE";
+            modalInstance.show();
+        }
+
+        function getTaksSafe(index) {
+            return getTasks()[index];
+        }
+
+        function deleteTask(index) {
+            if (confirm("Confirm protocol purge for this objective?")) {
+                let tasks = getTasks();
+                tasks.splice(index, 1);
+                saveTasksToStorage(tasks);
+                loadTasks();
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
